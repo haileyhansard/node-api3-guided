@@ -2,6 +2,7 @@ const express = require('express');
 
 const Hubs = require('./hubs-model.js');
 const Messages = require('../messages/messages-model.js');
+const ifExists = require("./if-exists-mw.js");
 
 const router = express.Router();
 
@@ -22,7 +23,7 @@ router.get('/', (req, res) => {
 
 // /api/hubs/:id
 
-router.get('/:id', (req, res) => {
+router.get('/:id', ifExists, (req, res) => {
   Hubs.findById(req.params.id)
   .then(hub => {
     if (hub) {
@@ -54,7 +55,7 @@ router.post('/', (req, res) => {
   });
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', ifExists, (req, res) => {
   Hubs.remove(req.params.id)
   .then(count => {
     if (count > 0) {
@@ -72,7 +73,7 @@ router.delete('/:id', (req, res) => {
   });
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', ifExists, (req, res) => {
   Hubs.update(req.params.id, req.body)
   .then(hub => {
     if (hub) {
@@ -92,7 +93,7 @@ router.put('/:id', (req, res) => {
 
 // add an endpoint that returns all the messages for a hub
 // this is a sub-route or sub-resource
-router.get('/:id/messages', (req, res) => {
+router.get('/:id/messages', ifExists, (req, res) => {
   Hubs.findHubMessages(req.params.id)
   .then(messages => {
     res.status(200).json(messages);
@@ -107,7 +108,7 @@ router.get('/:id/messages', (req, res) => {
 });
 
 // add an endpoint for adding new message to a hub
-router.post('/:id/messages', (req, res) => {
+router.post('/:id/messages', ifExists, (req, res) => {
   const messageInfo = { ...req.body, hub_id: req.params.id };
 
   Messages.add(messageInfo)
